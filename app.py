@@ -46,3 +46,25 @@ if st.button('Classificar prioridade'):
     nova = pd.DataFrame([{'tipo':tipo,'local':local,'periodo':periodo,'tem_arma':tem_arma,'vitima_ferida':vitima_ferida,'reincidencia':reinc}]) 
     p = pipe.predict(nova)[0] 
     st.success(f'Prioridade prevista: {p}') 
+ 
+# 2) MINI-RAG 
+def norm(t): 
+    return ''.join(c for c in unicodedata.normalize('NFD', t.lower()) if unicodedata.category(c) != 'Mn') 
+ 
+KB = [ 
+{'tema':'violencia domestica','texto':'Priorizar segurança da vítima, Lei Maria da Penha, medidas protetivas, preservação de evidências.'}, 
+{'tema':'homicidio','texto':'Isolar local, preservar vestígios, acionar perícia, identificar testemunhas.'}, 
+{'tema':'ameaca','texto':'Registrar circunstâncias, avaliar risco, preservar mensagens.'}, 
+] 
+ 
+def recuperar_rag(pergunta): 
+    q = norm(pergunta) 
+    for item in KB: 
+        if item['tema'] in q: 
+            return item['texto'] 
+    return 'Não consta procedimento específico na base didática.' 
+ 
+st.header('2) Assistente (Mini-RAG)') 
+q = st.text_input('Pergunta (ex: Como tratar um caso de Violência Doméstica?)') 
+if q: 
+    st.info(recuperar_rag(q))
